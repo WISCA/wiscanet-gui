@@ -1,15 +1,28 @@
 use diesel::{self, prelude::*};
 use std::net::Ipv4Addr;
 
-use schema::edgenodes;
-use schema::edgenodes::dsl::{edgenodes as all_edgenodes};
+mod schema {
+
+table! {
+    edgenodes (id) {
+        id -> Nullable<Integer>,
+        name -> Text,
+        ipaddr -> Integer,
+        radio_type -> Text,
+        radio_address -> Text,
+    }
+}
+}
+
+use self::schema::edgenodes;
+use self::schema::edgenodes::dsl::{edgenodes as all_edgenodes};
 
 #[table_name="edgenodes"]
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
 pub struct Edgenode {
     pub id: Option<i32>,
     pub name: String,
-    pub ipaddr: Ipv4Addr,
+    pub ipaddr: i32, // Handle conversions when going to and from display and from form
     pub radio_type: String,
     pub radio_address: String
 }
@@ -17,7 +30,7 @@ pub struct Edgenode {
 #[derive(FromForm)]
 pub struct Node {
     pub name: String,
-    pub ipaddr: Ipv4Addr,
+    pub ipaddr: String, // Handle conversion going to and from i32 and String
     pub radio_type: String,
     pub radio_address: String
 }
