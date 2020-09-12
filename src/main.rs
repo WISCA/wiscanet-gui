@@ -42,8 +42,12 @@ impl<'a, 'b> Context<'a, 'b> {
 #[post("/", data = "<node_form>")]
 fn new(node_form: Form<Node>, conn: DbConn) -> Flash<Redirect> {
     let node = node_form.into_inner();
-    if node.description.is_empty() {
-        Flash::error(Redirect::to("/"), "Description cannot be empty.")
+    if node.name.is_empty() {
+        Flash::error(Redirect::to("/"), "Name cannot be empty.")
+    } else if node.ipaddr.is_empty() {
+        Flash::error(Redirect::to("/"), "IP Address cannot be empty.")
+    } else if node.radio_type.is_empty() {
+        Flash::error(Redirect::to("/"), "Radio Type cannot be empty.")
     } else if Edgenode::insert(node, &conn) {
         Flash::success(Redirect::to("/"), "Node successfully added.")
     } else {
@@ -85,7 +89,7 @@ fn rocket() -> Rocket {
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .mount("/", StaticFiles::from("static/"))
         .mount("/", routes![index])
-        .mount("/node", routes![new, toggle, delete])
+        .mount("/node", routes![new, delete])
         .attach(Template::fairing())
 }
 
