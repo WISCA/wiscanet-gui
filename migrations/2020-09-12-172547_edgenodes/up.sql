@@ -1,7 +1,7 @@
 CREATE TABLE edgenodes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name VARCHAR NOT NULL,
-  ipaddr INTEGER NOT NULL,
+  ipaddr VARCHAR NOT NULL,
   radio_type VARCHAR NOT NULL,
   radio_address TEXT NOT NULL
 )

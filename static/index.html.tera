@@ -6,53 +6,92 @@
         <meta name="description" content="WISCANET Management Tool">
         <meta name="author" content="Jacob Holtom">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+        <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
         <link rel="icon" type="image/png" href="/images/favicon.png">
     </head>
     <body>
-        <div class="container">
-            <p><!-- Nothing to see here --></p>
+        <div class="ui container">
+            <h1 class="ui header">WISCANET Management</h1>
+            <div class="ui segment">
+                {% if msg %}
+                <div class="ui message transition">
+                    <i class="close icon"></i>
+                    <div class="header">
+                        {{ msg.0 }}
+                    </div>
+                    {{ msg.1 }}
+                </div>
+                {% endif %}
+                <div class="ui left dividing rail massive">
+                    <div class="ui segment">
+                        <h2 class="ui header">Edge Nodes </h2>
+                        <button class="ui labeled icon button" onclick="$('.ui.modal').modal('show');"><i class="plus icon"></i>Add Node</button>
+                        <div class="ui list">
+                            {% for node in edgenodes %}
+                            <div class="item">
+                                <div class="header"> {{ node.name }} </div>
+                                <div class="ui list">
+                                    <div class="item">IP Addr: {{ node.ipaddr }}</div>
+                                    <div class="item">Radio Type: {{ node.radio_type }}</div>
+                                    <div class="item">Radio Address: {{ node.radio_address }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
 
-            <div class="row">
-                <h4>Welcome to WISCANET Management</h4>
-                <form action="/node" method="post">
-                    <div class="ten columns">
-                        {% if msg %}
-                        <small class="field-{{msg.0}}-msg">
-                            {{ msg.1 }}
-                        </small>
-                        {% endif %}
-                        <input type="text" placeholder="Enter a node name (i.e. wisca-nuc-blk-4)..."
-                                           name="name" id="name" value="" autofocus class="u-full-width" />
-                        <input type="text" placeholder="Enter the nodes ip address (i.e. 10.206.200.203)..."
-                                           name="ipaddr", id="ipaddr", value="" class="u-full-width" />
-                        <label for="radio_type">Choose a radio type:</label>
-                        <select id="radio_type" name="radio_type">
+                This is where we will handle application configuration!
+
+            </div>
+
+            <div class="ui modal">
+                <div class="header"> Add New Edge Node </div>
+                <div class="content">
+                    <form action="/node" method="post" class="ui form">
+                        <div class="ui input fluid">
+                            <input type="text" placeholder="Enter a node name (i.e. wisca-nuc-blk-4)..."
+                                               name="name" id="name" value="" autofocus/>
+                        </div>
+                        <br>
+                        <div class="ui input fluid">
+                            <input type="text" placeholder="Enter the nodes ip address (i.e. 10.206.200.203)..."
+                                               name="ipaddr", id="ipaddr", value=""/>
+                        </div>
+                        <br>
+                        <label for="radio_type" class="ui label">Choose a radio type:</label>
+                        <select id="radio_type" name="radio_type" class="ui dropdown">
                             <option value="b210">USRP B210</option>
                             <option value="x310">USRP X310</option>
                         </select>
-                        <input type="text" placeholder="Enter the radio's address (i.e. addr=192.168.40.2)..."
-                                           name="radio_address", id="radio_address", value="", class="u-full-width" />
-                    </div>
-                    <div class="two columns">
-                        <input type="submit" value="add node">
-                    </div>
-                </form>
-            </div>
+                        <br>
+                        <div class="ui input fluid">
+                            <input type="text" placeholder="Enter the radio's address (i.e. addr=192.168.40.2)..."
+                                               name="radio_address", id="radio_address", value="", class="u-full-width" />
+                        </div>
 
-            <div class="row">
-                <div class="twelve columns">
-                    <ul>
-                        {% for node in edgenodes %}
-                        <li>
-                            <b> {{ node.name }}: </b> IP Addr: {{ node.ipaddr }}, Radio Type: {{ node.radio_type }}, Radio Address: {{ node.radio_address }}
-                        </li>
-                        {% endfor %}
-                    </ul>
                 </div>
+                <div class="actions">
+                    <input type="submit" value="Add Edge Node" class="ui primary button">
+                    <div class="ui button" onclick="$('.ui.modal').modal('hide');">Cancel</div>
+                </div>
+                    </form>
             </div>
         </div>
+        </div>
     </body>
+    <script>
+        $('.message .close')
+            .on('click', function() {
+                $(this)
+                    .closest('.message')
+                    .transition('fade')
+                ;
+            });
+    </script>
 </html>

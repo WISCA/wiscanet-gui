@@ -1,13 +1,11 @@
 use diesel::{self, prelude::*};
-use std::net::Ipv4Addr;
-use std::str::FromStr;
 
 mod schema {
     table! {
         edgenodes (id) {
             id -> Nullable<Integer>,
             name -> Text,
-            ipaddr -> Integer,
+            ipaddr -> Text,
             radio_type -> Text,
             radio_address -> Text,
         }
@@ -22,7 +20,7 @@ use self::schema::edgenodes::dsl::{edgenodes as all_edgenodes};
 pub struct Edgenode {
     pub id: Option<i32>,
     pub name: String,
-    pub ipaddr: i32, // Handle conversions when going to and from display and from form
+    pub ipaddr: String, // Handle conversions when going to and from display and from form
     pub radio_type: String,
     pub radio_address: String
 }
@@ -41,9 +39,8 @@ impl Edgenode {
     }
 
     pub fn insert(node: Node, conn: &SqliteConnection) -> bool {
-        let ipaddr = Ipv4Addr::from_str(&node.ipaddr);
-        let numeric_ipaddr = u32::from(ipaddr.unwrap()) as i32;
-        let t = Edgenode { id: None, name: node.name, ipaddr: numeric_ipaddr, radio_type: node.radio_type, radio_address: node.radio_address };
+        // Check if IP Address is valid
+        let t = Edgenode { id: None, name: node.name, ipaddr: node.ipaddr, radio_type: node.radio_type, radio_address: node.radio_address };
         diesel::insert_into(edgenodes::table).values(&t).execute(conn).is_ok()
     }
 
