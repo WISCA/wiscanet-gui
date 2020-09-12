@@ -1,18 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>WISCANET Management</title>
-  <meta name="description" content="WISCANET Management Tool">
-  <meta name="author" content="Jacob Holtom">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <meta charset="utf-8">
+        <title>WISCANET Management</title>
+        <meta name="description" content="WISCANET Management Tool">
+        <meta name="author" content="Jacob Holtom">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="stylesheet" href="/css/normalize.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
-</head>
-<body>
-  <div class="container">
-    <p>Welcome to WISCANET Management</p>
-  </div>
-</body>
+        <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+        <link rel="icon" type="image/png" href="/images/favicon.png">
+    </head>
+    <body>
+        <div class="container">
+            <p><!-- Nothing to see here --></p>
+
+            <div class="row">
+                <h4>Welcome to WISCANET Management</h4>
+                <form action="/node" method="post">
+                    <div class="ten columns">
+                        {% if msg %}
+                        <small class="field-{{msg.0}}-msg">
+                            {{ msg.1 }}
+                        </small>
+                        {% endif %}
+                        <input type="text" placeholder="Enter a node name (i.e. wisca-nuc-blk-4)..."
+                                           name="name" id="name" value="" autofocus class="u-full-width" />
+                        <input type="text" placeholder="Enter the nodes ip address (i.e. 10.206.200.203)..."
+                                           name="ipaddr", id="ipaddr", value="" class="u-full-width" />
+                        <label for="radio_type">Choose a radio type:</label>
+                        <select id="radio_type" name="radio_type">
+                            <option value="b210">USRP B210</option>
+                            <option value="x310">USRP X310</option>
+                        </select>
+                        <input type="text" placeholder="Enter the radio's address (i.e. addr=192.168.40.2)..."
+                                           name="radio_address", id="radio_address", value="", class="u-full-width" />
+                    </div>
+                    <div class="two columns">
+                        <input type="submit" value="add node">
+                    </div>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="twelve columns">
+                    <ul>
+                        {% for node in edgenodes %}
+                        <li>
+                            <b> {{ node.name }}: </b> IP Addr: {{ node.ipaddr }}, Radio Type: {{ node.radio_type }}, Radio Address: {{ node.radio_address }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
