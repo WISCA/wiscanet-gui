@@ -1,19 +1,9 @@
 use diesel::{self, prelude::*};
 
-mod schema {
-    table! {
-        edgenodes (id) {
-            id -> Nullable<Integer>,
-            name -> Text,
-            ipaddr -> Text,
-            radio_type -> Text,
-            radio_address -> Text,
-        }
-    }
-}
+#[path = "./schema.rs"] mod schema;
 
-use self::schema::edgenodes;
-use self::schema::edgenodes::dsl::{edgenodes as all_edgenodes};
+use schema::edgenodes;
+use schema::edgenodes::dsl::{edgenodes as all_edgenodes};
 
 #[table_name="edgenodes"]
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
