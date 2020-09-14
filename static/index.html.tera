@@ -13,9 +13,17 @@
             crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
         <link rel="icon" type="image/png" href="/images/favicon.png">
+        <style type="text/css">
+body {
+    background-color: #FFFFFF;
+}
+            .main.container {
+                margin-top: 2em;
+            }
+        </style>
     </head>
     <body>
-        <div class="ui container">
+        <div class="ui main container">
             <h1 class="ui header">WISCANET Management</h1>
             <div class="ui segment">
                 {% if msg %}
@@ -27,22 +35,36 @@
                     {{ msg.1 }}
                 </div>
                 {% endif %}
-                <div class="ui left dividing rail massive">
-                    <div class="ui segment">
-                        <h2 class="ui header">Edge Nodes </h2>
-                        <button class="ui labeled icon button" onclick="$('.ui.modal').modal('show');"><i class="plus icon"></i>Add Node</button>
-                        <div class="ui list">
-                            {% for node in edgenodes %}
-                            <div class="item">
-                                <div class="header"> {{ node.name }} </div>
+                <div class="ui left dividing rail">
+                    <div class="ui"><h2>Edge Nodes</h2>
+                        <button class="ui compact icon button labeled teal" onclick="$('.ui.modal').modal('show');"><i class="plus icon"></i>Add Node</button>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="ui cards">
+                        {% for node in edgenodes %}
+                        <div class="card">
+                            <div class="content">
+                                <div class="ui medium header"> {{ node.name }}
+                                </div>
+                            </div>
+                            <div class="content">
                                 <div class="ui list">
                                     <div class="item">IP Addr: {{ node.ipaddr }}</div>
                                     <div class="item">Radio Type: {{ node.radio_type }}</div>
                                     <div class="item">Radio Address: {{ node.radio_address }}</div>
                                 </div>
                             </div>
-                            {% endfor %}
+                            <div class="content">
+                                <div class="ui buttons tiny">
+                                    <button class="ui icon toggle button tiny" id="node-{{node.id}}-toggle" onclick="$('#node-{{node.id}}-toggle').addClass('green');alert('added to active config');"><i class="icon plus"></i>Use in Config</button>
+                                    <form action="/node/{{node.id}}" method="post">
+                                        <input type="hidden" name="_method" value="delete" />
+                                        <button class="ui icon button negative tiny" type="submit"><i class="delete icon"></i>Delete Node</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
 
