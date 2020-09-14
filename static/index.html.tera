@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="utf-8">
+        <meta charset="utf-8"/>
         <title>WISCANET Management</title>
-        <meta name="description" content="WISCANET Management Tool">
-        <meta name="author" content="Jacob Holtom">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
-        <script
-            src="https://code.jquery.com/jquery-3.1.1.min.js"
-            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-            crossorigin="anonymous"></script>
+        <meta content="WISCANET Management Tool" name="description"/>
+        <meta content="Jacob Holtom" name="author"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" rel="stylesheet"/>
+        <script crossorigin="anonymous" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
-        <link rel="icon" type="image/png" href="/images/favicon.png">
+        <link href="/images/favicon.png" rel="icon" type="image/png"/>
         <style type="text/css">
-body {
-    background-color: #FFFFFF;
-}
+            body {
+                background-color: #FFFFFF;
+            }
             .main.container {
                 margin-top: 2em;
             }
@@ -27,93 +24,203 @@ body {
             <h1 class="ui header">WISCANET Management</h1>
             <div class="ui segment">
                 {% if msg %}
-                <div class="ui message transition">
-                    <i class="close icon"></i>
-                    <div class="header">
-                        {{ msg.0 }}
+                    <div class="ui message transition">
+                        <i class="close icon"></i>
+                        <div class="header">
+                            {{ msg.0 }}
+                        </div>
+                        {{ msg.1 }}
                     </div>
-                    {{ msg.1 }}
-                </div>
                 {% endif %}
                 <div class="ui left dividing rail">
-                    <div class="ui"><h2>Edge Nodes</h2>
-                        <button class="ui compact icon button labeled teal" onclick="$('.ui.modal').modal('show');"><i class="plus icon"></i>Add Node</button>
+                    <div class="ui">
+                        <h2>Edge Nodes</h2>
+                        <button class="ui compact icon button labeled teal" onclick="$('#edgemodal').modal('show');">
+                            <i class="plus icon"></i>Add New Edge Node</button>
                     </div>
                     <div class="ui divider"></div>
                     <div class="ui cards">
                         {% for node in edgenodes %}
-                        <div class="card">
-                            <div class="content">
-                                <div class="ui medium header"> {{ node.name }}
+                            <div class="card">
+                                <div class="content">
+                                    <div class="ui medium header">
+                                        {{ node.name }}
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui list">
+                                        <div class="item">IP Addr: {{ node.ipaddr }}</div>
+                                        <div class="item">Radio Type: {{ node.radio_type }}</div>
+                                        <div class="item">Radio Address: {{ node.radio_address }}</div>
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui buttons tiny">
+                                        <button class="ui icon toggle button tiny" id="node-{{ node.id }}-toggle" onclick="$('#node-{{ node.id }}-toggle').addClass('green');alert('added to active config');">
+                                            <i class="icon plus"></i>Use in Config</button>
+                                        <form action="/node/{{ node.id }}" method="post">
+                                            <input name="_method" type="hidden" value="delete"/>
+                                            <button class="ui icon button negative tiny" type="submit">
+                                                <i class="delete icon"></i>Delete Node</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="content">
-                                <div class="ui list">
-                                    <div class="item">IP Addr: {{ node.ipaddr }}</div>
-                                    <div class="item">Radio Type: {{ node.radio_type }}</div>
-                                    <div class="item">Radio Address: {{ node.radio_address }}</div>
-                                </div>
-                            </div>
-                            <div class="content">
-                                <div class="ui buttons tiny">
-                                    <button class="ui icon toggle button tiny" id="node-{{node.id}}-toggle" onclick="$('#node-{{node.id}}-toggle').addClass('green');alert('added to active config');"><i class="icon plus"></i>Use in Config</button>
-                                    <form action="/node/{{node.id}}" method="post">
-                                        <input type="hidden" name="_method" value="delete" />
-                                        <button class="ui icon button negative tiny" type="submit"><i class="delete icon"></i>Delete Node</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
-
                 This is where we will handle application configuration!
-
+                <div class="ui right dividing rail">
+                    <div class="ui">
+                        <h2>Applications</h2>
+                        <button class="ui compact icon button labeled teal" onclick="$('#appmodal').modal('show');">
+                            <i class="plus icon"></i>Add New Application</button>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="ui cards">
+                        {% for app in applications %}
+                            <div class="card">
+                                <div class="content">
+                                    <div class="ui medium header">
+                                        {{ app.name }}
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui list">
+                                        <div class="item">Operating Mode: {{ app.op_mode }}</div>
+                                        <div class="item">MAC Mode: {{ app.mac_mode }}</div>
+                                        <div class="item">MATLAB Directory: {{ app.matlab_dir }}</div>
+                                        <div class="item">MATLAB Function: {{ app.matlab_func }}</div>
+                                        <div class="item">MATLAB Log Function: {{ app.matlab_log }}</div>
+                                        <div class="item">Number of Samples: {{ app.num_samples }}</div>
+                                        <div class="item">Sample Rate (Hz): {{ app.sample_rate }}</div>
+                                        <div class="item">Center Frequency (Hz): {{ app.freq }}</div>
+                                        <div class="item">Bandwidth (Hz): {{ app.bw }}</div>
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui buttons tiny">
+                                        <button class="ui icon button tiny" id="app-{{ app.id }}-add" onclick="alert('added to active config');">
+                                            <i class="icon plus"></i>Load Config</button>
+                                        <form action="/app/{{ app.id }}" method="post">
+                                            <input name="_method" type="hidden" value="delete"/>
+                                            <button class="ui icon button negative tiny" type="submit">
+                                                <i class="delete icon"></i>Delete Application</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-
-            <div class="ui modal">
-                <div class="header"> Add New Edge Node </div>
+            <div class="ui modal" id="edgemodal">
+                <div class="header">
+                    Add New Edge Node
+                </div>
                 <div class="content">
-                    <form action="/node" method="post" class="ui form">
+                    <form action="/node" class="ui form" method="post">
                         <div class="ui input fluid">
-                            <input type="text" placeholder="Enter a node name (i.e. wisca-nuc-blk-4)..."
-                                               name="name" id="name" value="" autofocus/>
+                            <input autofocus id="name" name="name" placeholder="Enter a node name (i.e. wisca-nuc-blk-4)..." type="text" value=""/>
                         </div>
-                        <br>
+                        <br/>
                         <div class="ui input fluid">
-                            <input type="text" placeholder="Enter the nodes ip address (i.e. 10.206.200.203)..."
-                                               name="ipaddr", id="ipaddr", value=""/>
+                            <input id="ipaddr" name="ipaddr" placeholder="Enter the nodes ip address (i.e. 10.206.200.203)..." type="text" value=""/>
                         </div>
-                        <br>
-                        <label for="radio_type" class="ui label">Choose a radio type:</label>
-                        <select id="radio_type" name="radio_type" class="ui dropdown">
+                        <br/>
+                        <label class="ui label" for="radio_type">Choose a radio type:</label>
+                        <select class="ui dropdown" id="radio_type" name="radio_type">
                             <option value="b210">USRP B210</option>
                             <option value="x310">USRP X310</option>
                         </select>
-                        <br>
+                        <br/>
                         <div class="ui input fluid">
-                            <input type="text" placeholder="Enter the radio's address (i.e. addr=192.168.40.2)..."
-                                               name="radio_address", id="radio_address", value="", class="u-full-width" />
+                            <input class="u-full-width" id="radio_address" name="radio_address" placeholder="Enter the radio's address (i.e. addr=192.168.40.2)..." type="text" value=""/>
                         </div>
-
+                    </div>
+                    <div class="actions">
+                        <input class="ui primary button" type="submit" value="Add Edge Node"/>
+                        <div class="ui button" onclick="$('#edgemodal').modal('hide');">Cancel</div>
+                    </div>
+                </form>
+            </div>
+            <div class="ui modal" id="appmodal">
+                <div class="header">
+                    Add New Application
                 </div>
-                <div class="actions">
-                    <input type="submit" value="Add Edge Node" class="ui primary button">
-                    <div class="ui button" onclick="$('.ui.modal').modal('hide');">Cancel</div>
-                </div>
-                    </form>
+                <div class="content">
+                    <form action="/app" class="ui form" method="post">
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">Application Name
+                            </label>
+                            <input autofocus id="name" name="name" placeholder="Enter an application name (i.e OFDM Ping Pong)..." type="text" value=""/>
+                        </div>
+                        <br/>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="op_mode">Choose an Operating Mode</label>
+                            <select class="ui dropdown" id="op_mode" name="op_mode">
+                                <option value="TX">TX Only</option>
+                                <option value="RX">RX Only</option>
+                                <option value="TX/RX">TX and RX</option>
+                            </select>
+                        </div>
+                        <br/>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="mac_mode">Choose a MAC Mode</label>
+                            <select class="ui dropdown" id="mac_mode" name="mac_mode">
+                                <option value="UMAC">UMAC</option>
+                            </select>
+                        </div>
+                        <br/>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">MATLAB Directory
+                            </label>
+                            <input id="matlab_dir" name="matlab_dir" placeholder="Enter the MATLAB directory (i.e UMAC_sdrn/usrpFunc)..." type="text" value=""/>
+                        </div>
+                        <br/>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">MATLAB BaseBand Function
+                            </label>
+                            <input id="matlab_func" name="matlab_func" placeholder="Enter the MATLAB function name (i.e usrpQPSKNode)..." type="text" value=""/>
+                        </div>
+                        <br/>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">MATLAB Log Function
+                            </label>
+                            <input id="matlab_log" name="matlab_log" placeholder="Enter the MATLAB log function name (i.e NULL)..." type="text" value=""/>
+                        </div>
+                        <br/>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="num_samples">Choose a Number of Samples</label>
+                            <select class="ui dropdown" id="num_samples" name="num_samples">
+                                <option value="50000">50000</option>
+                            </select>
+                        </div>
+                        <br/>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="sample_rate">Specify a Sample Rate (Hz)
+                            </label>
+                            <input id="sample_rate" name="sample_rate" placeholder="1000000" type="number" value=""/>
+                        </div>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="freq">Specify a Center Frequency (Hz)
+                            </label>
+                            <input id="freq" name="freq" placeholder="907000000" type="number" value=""/>
+                        </div>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">Specify a Bandwidth (Hz)
+                            </label>
+                            <input id="bw" name="bw" placeholder="100000000" type="number" value=""/>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <input class="ui primary button" type="submit" value="Add Application"/>
+                        <div class="ui button" onclick="$('#appmodal').modal('hide');">Cancel</div>
+                    </div>
+                </form>
             </div>
         </div>
-        </div>
     </body>
-    <script>
-        $('.message .close')
-            .on('click', function() {
-                $(this)
-                    .closest('.message')
-                    .transition('fade')
-                ;
-            });
-    </script>
-</html>
+</html></div></body><script>$(".message .close").on("click", function () {
+    $(this).closest(".message").transition("fade");
+});</script></html>

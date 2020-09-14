@@ -11,14 +11,14 @@ pub struct Application {
     pub id: Option<i32>,
     pub name: String,
     pub op_mode: String,
-    pub macmode: String,
+    pub mac_mode: String,
     pub matlab_dir: String,
     pub matlab_func: String,
     pub matlab_log: String,
     pub num_samples: i32,
-    pub sample_rate: f64,
-    pub freq: f64,
-    pub bw: f64
+    pub sample_rate: f32,
+    pub freq: f32,
+    pub bw: f32
 }
 
 #[derive(FromForm)]
@@ -30,9 +30,9 @@ pub struct App {
     pub matlab_func: String,
     pub matlab_log: String,
     pub num_samples: i32,
-    pub sample_rate: f64,
-    pub freq: f64,
-    pub bw: f64
+    pub sample_rate: f32,
+    pub freq: f32,
+    pub bw: f32
 }
 
 impl Application {
