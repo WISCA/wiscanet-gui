@@ -8,7 +8,7 @@ curr_node_name = $("#edgenodes :selected").text();
 curr_app_id = $("#applications :selected").val();
 curr_app_name = $("#applications :selected").text();
 
-var curr_pair = {node_id:curr_node_id, node_name:curr_node_name, app_id:curr_app_id, app_name:curr_app_name};
+var curr_pair = {node_id:curr_node_id, node_name:curr_node_name, app_id:curr_app_id, app_name:curr_app_name, logic_id: app_node_pairs.length+1};
 
 app_node_pairs.push(curr_pair);
 

@@ -31,9 +31,11 @@ pub struct ConfigPair{
     pub node_id: String,
     pub node_name: String,
     pub app_id: String,
-    pub app_name: String
+    pub app_name: String,
+    pub logic_id: i32
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ConfigFile{
     pub logic_id: i32,
     pub op_mode: String,
@@ -43,6 +45,7 @@ pub struct ConfigFile{
     pub matlab_func: String,
     pub matlab_log: String,
     pub num_samples: i32,
+    pub sample_rate: f32,
     pub subdevice: String,
     pub freq: f32,
     pub tx_gain: f32,
@@ -144,10 +147,10 @@ fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> F
     let conf = gen_config_form.into_inner();
     // Let's find the actual objects associated with each of these id's
     // We are going to set up a list of pairs of (Node, Application)
-    let node_app_map: Vec<(Edgenode, Application)> =
+    let node_app_map: Vec<(Edgenode, Application, i32)> =
         conf
         .iter()
-        .map(|t| (Edgenode::get_with_id(t.node_id.parse::<i32>().unwrap(), &conn).unwrap(), Application::get_with_id(t.app_id.parse::<i32>().unwrap(), &conn).unwrap()))
+        .map(|t| (Edgenode::get_with_id(t.node_id.parse::<i32>().unwrap(), &conn).unwrap(), Application::get_with_id(t.app_id.parse::<i32>().unwrap(), &conn).unwrap(),t.logic_id))
         .collect();
 
     // Now that we have a list of pairs, we are going to do some stuff with them
@@ -164,7 +167,7 @@ fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> F
     // Set up file writes
     let iplist_path = Path::new("/tmp/iplist");
     let mut file = match File::create(&iplist_path) {
-        Err(why) => panic!("couldn't create {}: {}", iplist_path.display(), why),
+        Err(why) => panic!("Couldn't create {}: {}", iplist_path.display(), why),
         Ok(file) => file,
     };
     let mut iplist_string = "".to_string();
@@ -172,6 +175,38 @@ fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> F
     for conf_pair in node_app_map {
         let pair_ip = conf_pair.0.ipaddr;
         iplist_string.push_str(&format!("{}\n",pair_ip));
+        let mut usrconfig_string = "/tmp/usrconfig_".to_string();
+        usrconfig_string.push_str(&format!("{}.yml",pair_ip));
+        let usrconfig_path = Path::new(&usrconfig_string);
+        let mut usrconfig_file = match File::create(&usrconfig_path) {
+            Err(why) => panic!("Couldn't create {}: {}", usrconfig_path.display(), why),
+            Ok(file) => file,
+        };
+        let usrconfig = ConfigFile {
+            logic_id: conf_pair.2,
+            op_mode: conf_pair.1.op_mode,
+            mac_mode: conf_pair.1.mac_mode,
+            time_slot: conf_pair.2,
+            matlab_dir: conf_pair.1.matlab_dir,
+            matlab_func: conf_pair.1.matlab_func,
+            matlab_log: conf_pair.1.matlab_log,
+            num_samples: conf_pair.1.num_samples,
+            subdevice: "A:A".to_string(), // Placeholder for future subdevice configuration
+            sample_rate: conf_pair.1.sample_rate,
+            freq: conf_pair.1.freq,
+            tx_gain: 30.0, // Placeholder for future tx_gain configuration
+            rx_gain: 30.0, // Placeholder for future rx_gain configuration
+            bandwidth: conf_pair.1.bw,
+            device_addr: conf_pair.0.radio_address,
+            channels: "0".to_string(), // Placeholder for future channel configuration
+            antennas: "TX/RX".to_string() // Placeholder for future antenna configuration
+        };
+
+        let usrconfig_string = serde_yaml::to_string(&usrconfig);
+        match usrconfig_file.write_all(usrconfig_string.unwrap().as_bytes()) {
+            Err(why) => panic!("Couldn't write to {}: {}", usrconfig_path.display(), why),
+            Ok(_) => println!("Succesfully wrote to {}", usrconfig_path.display()),
+        }
     }
 
     // Write out IP List file
