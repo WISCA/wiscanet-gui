@@ -49,6 +49,10 @@ impl Application {
         diesel::delete(all_applications.find(id)).execute(conn).is_ok()
     }
 
+    pub fn get_with_id(id: i32, conn: &SqliteConnection) -> Option<Application> {
+        all_applications.find(id).get_result::<Application>(conn).ok()
+    }
+
     #[cfg(test)]
     pub fn delete_all(conn: &SqliteConnection) -> bool {
         diesel::delete(all_applications).execute(conn).is_ok()

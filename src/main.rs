@@ -14,11 +14,44 @@ use rocket::Rocket;
 use rocket::fairing::AdHoc;
 use rocket::request::{Form, FlashMessage};
 use rocket::response::{Flash, Redirect};
-use rocket_contrib::{templates::Template, serve::StaticFiles};
+use rocket_contrib::{templates::Template, serve::StaticFiles, json::Json};
 use diesel::SqliteConnection;
+
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
+
 
 use edgenode::{Edgenode, Node};
 use application::{Application, App};
+
+// Config Generation
+#[derive(Debug, Deserialize)]
+pub struct ConfigPair{
+    pub node_id: String,
+    pub node_name: String,
+    pub app_id: String,
+    pub app_name: String
+}
+
+pub struct ConfigFile{
+    pub logic_id: i32,
+    pub op_mode: String,
+    pub mac_mode: String,
+    pub time_slot: i32,
+    pub matlab_dir: String,
+    pub matlab_func: String,
+    pub matlab_log: String,
+    pub num_samples: i32,
+    pub subdevice: String,
+    pub freq: f32,
+    pub tx_gain: f32,
+    pub rx_gain: f32,
+    pub bandwidth: f32,
+    pub device_addr: String,
+    pub channels: String,
+    pub antennas: String
+}
 
 // This macro from `diesel_migrations` defines an `embedded_migrations` module
 // containing a function named `run`. This allows the example to be run and
@@ -106,6 +139,50 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
     }
 }
 
+#[post("/", data = "<gen_config_form>")]
+fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> Flash<Redirect> {
+    let conf = gen_config_form.into_inner();
+    // Let's find the actual objects associated with each of these id's
+    // We are going to set up a list of pairs of (Node, Application)
+    let node_app_map: Vec<(Edgenode, Application)> =
+        conf
+        .iter()
+        .map(|t| (Edgenode::get_with_id(t.node_id.parse::<i32>().unwrap(), &conn).unwrap(), Application::get_with_id(t.app_id.parse::<i32>().unwrap(), &conn).unwrap()))
+        .collect();
+
+    // Now that we have a list of pairs, we are going to do some stuff with them
+    //println!("Node App Map (Rust): {:#?}", node_app_map);
+
+    // First we will generate the "iplist" file at ~/wdemo/run/usr/cfg/iplist
+    // On each line it contains the ip address of the nodes in the configuration
+    // Algorithm: foreach in node_app_map, get node ip, println into file
+
+    // Next we will generate the usrconfig_$ipaddr.yml files (also found in ~/wdemo/run/usr/cfg/)
+    // Algorithm: foreach in node_app_map, write out configuration combined from the application
+    // and node into yml file
+
+    // Set up file writes
+    let iplist_path = Path::new("/tmp/iplist");
+    let mut file = match File::create(&iplist_path) {
+        Err(why) => panic!("couldn't create {}: {}", iplist_path.display(), why),
+        Ok(file) => file,
+    };
+    let mut iplist_string = "".to_string();
+    // We will do these in one loop to save time iterating over the data structure
+    for conf_pair in node_app_map {
+        let pair_ip = conf_pair.0.ipaddr;
+        iplist_string.push_str(&format!("{}\n",pair_ip));
+    }
+
+    // Write out IP List file
+    match file.write_all(iplist_string.as_bytes()) {
+        Err(why) => panic!("Couldn't write to {}: {}", iplist_path.display(), why),
+        Ok(_) => println!("Succesfully wrote to {}", iplist_path.display()),
+    }
+
+    Flash::success(Redirect::to("/"), "Configuration Successfully Generated.")
+}
+
 fn rocket() -> Rocket {
     rocket::ignite()
         .attach(DbConn::fairing())
@@ -114,6 +191,7 @@ fn rocket() -> Rocket {
         .mount("/", routes![index])
         .mount("/node", routes![new, delete])
         .mount("/app", routes![new_app, delete_app])
+        .mount("/genconfig", routes![gen_configuration])
         .attach(Template::fairing())
 }
 

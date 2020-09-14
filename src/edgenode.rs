@@ -37,6 +37,10 @@ impl Edgenode {
     pub fn delete_with_id(id: i32, conn: &SqliteConnection) -> bool {
         diesel::delete(all_edgenodes.find(id)).execute(conn).is_ok()
     }
+    
+    pub fn get_with_id(id: i32, conn: &SqliteConnection) -> Option<Edgenode> {
+        all_edgenodes.find(id).get_result::<Edgenode>(conn).ok()
+    }
 
     #[cfg(test)]
     pub fn delete_all(conn: &SqliteConnection) -> bool {

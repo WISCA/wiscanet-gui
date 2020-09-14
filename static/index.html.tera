@@ -55,9 +55,7 @@
                                     </div>
                                 </div>
                                 <div class="content">
-                                    <div class="ui buttons tiny">
-                                        <button class="ui icon toggle button tiny" id="node-{{ node.id }}-toggle" onclick="$('#node-{{ node.id }}-toggle').addClass('green');alert('added to active config');">
-                                            <i class="icon plus"></i>Use in Config</button>
+                                    <div class="ui tiny">
                                         <form action="/node/{{ node.id }}" method="post">
                                             <input name="_method" type="hidden" value="delete"/>
                                             <button class="ui icon button negative tiny" type="submit">
@@ -69,7 +67,41 @@
                         {% endfor %}
                     </div>
                 </div>
-                This is where we will handle application configuration!
+                <h3 class="ui header">Build your WISCANET Runtime Configuration by pairing Edgenodes and Applications</h3>
+                <button class="ui icon button labeled teal" onclick="sendConfig()"><i class="icon paper plane"></i>Write Config to Disk</button>
+                <div class="ui divider"></div>
+                <div class="ui three column doubling stackable grid container">
+                    <div class="column">
+                        <h4 class="ui header">Edge Nodes</h4>
+                        <div class="inline fields">
+                            <label class="ui label" for="edgenodes">Select an Edge Node</label>
+                            <select class="ui fluid dropdown" id="edgenodes" name="edgenodes">
+                                {% for node in edgenodes %}
+                                    <option value="{{ node.id }}">{{ node.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h4 class="ui header">Applications</h4>
+                        <div class="inline fields">
+                            <label class="ui label" for="applications">Select an Application</label>
+                            <select class="ui dropdown fluid" id="applications" name="applications">
+                                {% for app in applications %}
+                                    <option value="{{ app.id }}">{{ app.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h4 class="ui header">Edge Node and Application Pairs</h4>
+                        <div class="ui relaxed divided list" name="pairs" id="pairs">
+
+                        </div>
+                        <button class="ui icon button labeled teal" onclick="addAppNodePair();">
+                            <i class="plus icon"></i>Add Application Node Pair</button>
+                    </div>
+                </div>
                 <div class="ui right dividing rail">
                     <div class="ui">
                         <h2>Applications</h2>
@@ -99,9 +131,7 @@
                                     </div>
                                 </div>
                                 <div class="content">
-                                    <div class="ui buttons tiny">
-                                        <button class="ui icon button tiny" id="app-{{ app.id }}-add" onclick="alert('added to active config');">
-                                            <i class="icon plus"></i>Load Config</button>
+                                    <div class="ui tiny">
                                         <form action="/app/{{ app.id }}" method="post">
                                             <input name="_method" type="hidden" value="delete"/>
                                             <button class="ui icon button negative tiny" type="submit">
@@ -120,21 +150,29 @@
                 </div>
                 <div class="content">
                     <form action="/node" class="ui form" method="post">
-                        <div class="ui input fluid">
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">Node Name
+                            </label>
                             <input autofocus id="name" name="name" placeholder="Enter a node name (i.e. wisca-nuc-blk-4)..." type="text" value=""/>
                         </div>
                         <br/>
-                        <div class="ui input fluid">
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">IP Address
+                            </label>
                             <input id="ipaddr" name="ipaddr" placeholder="Enter the nodes ip address (i.e. 10.206.200.203)..." type="text" value=""/>
                         </div>
                         <br/>
-                        <label class="ui label" for="radio_type">Choose a radio type:</label>
-                        <select class="ui dropdown" id="radio_type" name="radio_type">
-                            <option value="b210">USRP B210</option>
-                            <option value="x310">USRP X310</option>
-                        </select>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="radio_type">Choose a radio type</label>
+                            <select class="ui dropdown" id="radio_type" name="radio_type">
+                                <option value="b210">USRP B210</option>
+                                <option value="x310">USRP X310</option>
+                            </select>
+                        </div>
                         <br/>
-                        <div class="ui input fluid">
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="bw">Radio Address
+                            </label>
                             <input class="u-full-width" id="radio_address" name="radio_address" placeholder="Enter the radio's address (i.e. addr=192.168.40.2)..." type="text" value=""/>
                         </div>
                     </div>
@@ -223,4 +261,6 @@
     </body>
 </html></div></body><script>$(".message .close").on("click", function () {
     $(this).closest(".message").transition("fade");
-});</script></html>
+});</script>
+<script type="text/javascript" src="/app_logic.js"></script>
+</html>
