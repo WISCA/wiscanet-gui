@@ -1,11 +1,12 @@
 use diesel::{self, prelude::*};
 
-#[path = "./schema.rs"] mod schema;
+#[path = "./schema.rs"]
+mod schema;
 
 use schema::applications;
-use schema::applications::dsl::{applications as all_applications};
+use schema::applications::dsl::applications as all_applications;
 
-#[table_name="applications"]
+#[table_name = "applications"]
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
 pub struct Application {
     pub id: Option<i32>,
@@ -18,7 +19,7 @@ pub struct Application {
     pub num_samples: i32,
     pub sample_rate: f32,
     pub freq: f32,
-    pub bw: f32
+    pub bw: f32,
 }
 
 #[derive(FromForm)]
@@ -32,25 +33,48 @@ pub struct App {
     pub num_samples: i32,
     pub sample_rate: f32,
     pub freq: f32,
-    pub bw: f32
+    pub bw: f32,
 }
 
 impl Application {
     pub fn all(conn: &SqliteConnection) -> Vec<Application> {
-        all_applications.order(applications::id.desc()).load::<Application>(conn).unwrap()
+        all_applications
+            .order(applications::id.desc())
+            .load::<Application>(conn)
+            .unwrap()
     }
 
     pub fn insert(app: App, conn: &SqliteConnection) -> bool {
-        let a = Application { id: None, name: app.name, op_mode: app.op_mode, mac_mode: app.mac_mode, matlab_dir: app.matlab_dir, matlab_func: app.matlab_func, matlab_log: app.matlab_log, num_samples: app.num_samples, sample_rate: app.sample_rate, freq: app.freq, bw: app.bw};
-        diesel::insert_into(applications::table).values(&a).execute(conn).is_ok()
+        let a = Application {
+            id: None,
+            name: app.name,
+            op_mode: app.op_mode,
+            mac_mode: app.mac_mode,
+            matlab_dir: app.matlab_dir,
+            matlab_func: app.matlab_func,
+            matlab_log: app.matlab_log,
+            num_samples: app.num_samples,
+            sample_rate: app.sample_rate,
+            freq: app.freq,
+            bw: app.bw,
+        };
+        diesel::insert_into(applications::table)
+            .values(&a)
+            .execute(conn)
+            .is_ok()
     }
 
     pub fn delete_with_id(id: i32, conn: &SqliteConnection) -> bool {
-        diesel::delete(all_applications.find(id)).execute(conn).is_ok()
+        diesel::delete(all_applications.find(id))
+            .execute(conn)
+            .is_ok()
     }
 
     pub fn get_with_id(id: i32, conn: &SqliteConnection) -> Option<Application> {
-        all_applications.find(id).get_result::<Application>(conn).ok()
+        all_applications
+            .find(id)
+            .get_result::<Application>(conn)
+            .ok()
     }
 
     #[cfg(test)]

@@ -1,33 +1,38 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-#[macro_use] extern crate rocket;
-#[macro_use] extern crate diesel;
-#[macro_use] extern crate diesel_migrations;
-#[macro_use] extern crate log;
-#[macro_use] extern crate serde_derive;
-#[macro_use] extern crate rocket_contrib;
+#[macro_use]
+extern crate rocket;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate rocket_contrib;
 
-mod edgenode;
 mod application;
+mod edgenode;
 
-use rocket::Rocket;
-use rocket::fairing::AdHoc;
-use rocket::request::{Form, FlashMessage};
-use rocket::response::{Flash, Redirect};
-use rocket_contrib::{templates::Template, serve::StaticFiles, json::Json};
 use diesel::SqliteConnection;
+use rocket::fairing::AdHoc;
+use rocket::request::{FlashMessage, Form};
+use rocket::response::{Flash, Redirect};
+use rocket::Rocket;
+use rocket_contrib::{json::Json, serve::StaticFiles, templates::Template};
 
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-
+use application::{App, Application};
 use edgenode::{Edgenode, Node};
-use application::{Application, App};
 
 // Config Generation
 #[derive(Debug, Deserialize)]
-pub struct ConfigPair{
+pub struct ConfigPair {
     pub node_id: String,
     pub node_name: String,
     pub app_id: String,
@@ -37,11 +42,11 @@ pub struct ConfigPair{
     pub rx_gain: String,
     pub antenna: String,
     pub subdev: String,
-    pub num_chans: String
+    pub num_chans: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct ConfigFile{
+pub struct ConfigFile {
     pub logic_id: i32,
     pub op_mode: String,
     pub mac_mode: String,
@@ -58,7 +63,7 @@ pub struct ConfigFile{
     pub bandwidth: f32,
     pub device_addr: String,
     pub channels: String,
-    pub antennas: String
+    pub antennas: String,
 }
 
 // This macro from `diesel_migrations` defines an `embedded_migrations` module
@@ -70,15 +75,27 @@ embed_migrations!();
 pub struct DbConn(SqliteConnection);
 
 #[derive(Debug, Serialize)]
-struct Context<'a, 'b>{ msg: Option<(&'a str, &'b str)>, edgenodes: Vec<Edgenode>, applications: Vec<Application>}
+struct Context<'a, 'b> {
+    msg: Option<(&'a str, &'b str)>,
+    edgenodes: Vec<Edgenode>,
+    applications: Vec<Application>,
+}
 
 impl<'a, 'b> Context<'a, 'b> {
     pub fn err(conn: &DbConn, msg: &'a str) -> Context<'static, 'a> {
-        Context{msg: Some(("error", msg)), edgenodes: Edgenode::all(conn), applications: Application::all(conn)}
+        Context {
+            msg: Some(("error", msg)),
+            edgenodes: Edgenode::all(conn),
+            applications: Application::all(conn),
+        }
     }
 
     pub fn raw(conn: &DbConn, msg: Option<(&'a str, &'b str)>) -> Context<'a, 'b> {
-        Context{msg: msg, edgenodes: Edgenode::all(conn), applications: Application::all(conn)}
+        Context {
+            msg: msg,
+            edgenodes: Edgenode::all(conn),
+            applications: Application::all(conn),
+        }
     }
 }
 
@@ -103,14 +120,17 @@ fn delete(id: i32, conn: DbConn) -> Result<Flash<Redirect>, Template> {
     if Edgenode::delete_with_id(id, &conn) {
         Ok(Flash::success(Redirect::to("/"), "Edge Node was deleted."))
     } else {
-        Err(Template::render("index", &Context::err(&conn, "Couldn't delete Edge Node.")))
+        Err(Template::render(
+            "index",
+            &Context::err(&conn, "Couldn't delete Edge Node."),
+        ))
     }
 }
 
 #[post("/", data = "<app_form>")]
 fn new_app(app_form: Form<App>, conn: DbConn) -> Flash<Redirect> {
     let app = app_form.into_inner();
-    if app.name.is_empty(){
+    if app.name.is_empty() {
         Flash::error(Redirect::to("/"), "Name cannot be empty.")
     } else if Application::insert(app, &conn) {
         Flash::success(Redirect::to("/"), "Application successfully added.")
@@ -122,18 +142,27 @@ fn new_app(app_form: Form<App>, conn: DbConn) -> Flash<Redirect> {
 #[delete("/<id>")]
 fn delete_app(id: i32, conn: DbConn) -> Result<Flash<Redirect>, Template> {
     if Application::delete_with_id(id, &conn) {
-        Ok(Flash::success(Redirect::to("/"), "Application was deleted."))
+        Ok(Flash::success(
+            Redirect::to("/"),
+            "Application was deleted.",
+        ))
     } else {
-        Err(Template::render("index", &Context::err(&conn, "Couldn't delete Application.")))
+        Err(Template::render(
+            "index",
+            &Context::err(&conn, "Couldn't delete Application."),
+        ))
     }
 }
 
 #[get("/")]
 fn index(msg: Option<FlashMessage>, conn: DbConn) -> Template {
-    Template::render("index", &match msg {
-        Some(ref msg) => Context::raw(&conn, Some((msg.name(), msg.msg()))),
-        None => Context::raw(&conn, None),
-    })
+    Template::render(
+        "index",
+        &match msg {
+            Some(ref msg) => Context::raw(&conn, Some((msg.name(), msg.msg()))),
+            None => Context::raw(&conn, None),
+        },
+    )
 }
 
 fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
@@ -148,14 +177,24 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
 }
 
 #[post("/", data = "<gen_config_form>")]
-fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> Flash<Redirect> {
+fn gen_configuration(gen_config_form: Json<Vec<ConfigPair>>, conn: DbConn) -> Flash<Redirect> {
     let conf = gen_config_form.into_inner();
     // Let's find the actual objects associated with each of these id's
     // We are going to set up a list of pairs of (Node, Application)
-    let node_app_map: Vec<(Edgenode, Application, i32, f32, f32, String, String, i32)> =
-        conf
+    let node_app_map: Vec<(Edgenode, Application, i32, f32, f32, String, String, i32)> = conf
         .iter()
-        .map(|t| (Edgenode::get_with_id(t.node_id.parse::<i32>().unwrap(), &conn).unwrap(), Application::get_with_id(t.app_id.parse::<i32>().unwrap(), &conn).unwrap(),t.logic_id, t.tx_gain.parse::<f32>().unwrap(), t.rx_gain.parse::<f32>().unwrap(), t.subdev.clone(), t.antenna.clone(), t.num_chans.parse::<i32>().unwrap()))
+        .map(|t| {
+            (
+                Edgenode::get_with_id(t.node_id.parse::<i32>().unwrap(), &conn).unwrap(),
+                Application::get_with_id(t.app_id.parse::<i32>().unwrap(), &conn).unwrap(),
+                t.logic_id,
+                t.tx_gain.parse::<f32>().unwrap(),
+                t.rx_gain.parse::<f32>().unwrap(),
+                t.subdev.clone(),
+                t.antenna.clone(),
+                t.num_chans.parse::<i32>().unwrap(),
+            )
+        })
         .collect();
 
     // Now that we have a list of pairs, we are going to do some stuff with them
@@ -179,9 +218,9 @@ fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> F
     // We will do these in one loop to save time iterating over the data structure
     for conf_pair in node_app_map {
         let pair_ip = conf_pair.0.ipaddr;
-        iplist_string.push_str(&format!("{}\n",pair_ip));
+        iplist_string.push_str(&format!("{}\n", pair_ip));
         let mut usrconfig_string = "/home/jholtom/wdemo/run/usr/cfg/usrconfig_".to_string();
-        usrconfig_string.push_str(&format!("{}.yml",pair_ip));
+        usrconfig_string.push_str(&format!("{}.yml", pair_ip));
         let usrconfig_path = Path::new(&usrconfig_string);
         let mut usrconfig_file = match File::create(&usrconfig_path) {
             Err(why) => panic!("Couldn't create {}: {}", usrconfig_path.display(), why),
@@ -203,8 +242,11 @@ fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> F
             rx_gain: conf_pair.4,
             bandwidth: conf_pair.1.bw,
             device_addr: conf_pair.0.radio_address,
-            channels: vec!["0","0,1","0,1,2","0,1,2,3"].get((conf_pair.7 - 1) as usize).unwrap().to_string(),
-            antennas: conf_pair.6
+            channels: vec!["0", "0,1", "0,1,2", "0,1,2,3"]
+                .get((conf_pair.7 - 1) as usize)
+                .unwrap()
+                .to_string(),
+            antennas: conf_pair.6,
         };
 
         let usrconfig_string = serde_yaml::to_string(&usrconfig);
