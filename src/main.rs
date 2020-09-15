@@ -32,7 +32,12 @@ pub struct ConfigPair{
     pub node_name: String,
     pub app_id: String,
     pub app_name: String,
-    pub logic_id: i32
+    pub logic_id: i32,
+    pub tx_gain: String,
+    pub rx_gain: String,
+    pub antenna: String,
+    pub subdev: String,
+    pub num_chans: String
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -147,10 +152,10 @@ fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> F
     let conf = gen_config_form.into_inner();
     // Let's find the actual objects associated with each of these id's
     // We are going to set up a list of pairs of (Node, Application)
-    let node_app_map: Vec<(Edgenode, Application, i32)> =
+    let node_app_map: Vec<(Edgenode, Application, i32, f32, f32, String, String, i32)> =
         conf
         .iter()
-        .map(|t| (Edgenode::get_with_id(t.node_id.parse::<i32>().unwrap(), &conn).unwrap(), Application::get_with_id(t.app_id.parse::<i32>().unwrap(), &conn).unwrap(),t.logic_id))
+        .map(|t| (Edgenode::get_with_id(t.node_id.parse::<i32>().unwrap(), &conn).unwrap(), Application::get_with_id(t.app_id.parse::<i32>().unwrap(), &conn).unwrap(),t.logic_id, t.tx_gain.parse::<f32>().unwrap(), t.rx_gain.parse::<f32>().unwrap(), t.subdev.clone(), t.antenna.clone(), t.num_chans.parse::<i32>().unwrap()))
         .collect();
 
     // Now that we have a list of pairs, we are going to do some stuff with them
@@ -191,15 +196,15 @@ fn gen_configuration(gen_config_form : Json<Vec<ConfigPair>>, conn: DbConn) -> F
             matlab_func: conf_pair.1.matlab_func,
             matlab_log: conf_pair.1.matlab_log,
             num_samples: conf_pair.1.num_samples,
-            subdevice: "A:A".to_string(), // Placeholder for future subdevice configuration
+            subdevice: conf_pair.5,
             sample_rate: conf_pair.1.sample_rate,
             freq: conf_pair.1.freq,
-            tx_gain: 30.0, // Placeholder for future tx_gain configuration
-            rx_gain: 30.0, // Placeholder for future rx_gain configuration
+            tx_gain: conf_pair.3,
+            rx_gain: conf_pair.4,
             bandwidth: conf_pair.1.bw,
             device_addr: conf_pair.0.radio_address,
-            channels: "0".to_string(), // Placeholder for future channel configuration
-            antennas: "TX/RX".to_string() // Placeholder for future antenna configuration
+            channels: vec!["0","0,1","0,1,2","0,1,2,3"].get((conf_pair.7 - 1) as usize).unwrap().to_string(),
+            antennas: conf_pair.6
         };
 
         let usrconfig_string = serde_yaml::to_string(&usrconfig);

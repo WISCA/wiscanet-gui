@@ -68,7 +68,8 @@
                     </div>
                 </div>
                 <h3 class="ui header">Build your WISCANET Runtime Configuration by pairing Edgenodes and Applications</h3>
-                <button class="ui icon button labeled teal" onclick="sendConfig()"><i class="icon paper plane"></i>Write Config to Disk</button>
+                <button class="ui icon button labeled teal" onclick="sendConfig()">
+                    <i class="icon paper plane"></i>Write Config to Disk</button>
                 <div class="ui divider"></div>
                 <div class="ui three column doubling stackable grid container">
                     <div class="column">
@@ -95,11 +96,39 @@
                     </div>
                     <div class="column">
                         <h4 class="ui header">Edge Node and Application Pairs</h4>
-                        <div class="ui relaxed divided list" name="pairs" id="pairs">
-
+                        <div class="ui relaxed divided list" id="pairs" name="pairs"></div>
+                        <div class="ui form">
+                            <div class="ui input fluid inline fields">
+                                <label class="ui label" for="tx_gain">Transmit Gain (dB)</label>
+                                <input id="tx_gain" name="tx_gain" placeholder="30.0" type="number" value=""/>
+                            </div>
+                            <div class="ui input fluid inline fields">
+                                <label class="ui label" for="rx_gain">Receive Gain (dB)</label>
+                                <input id="rx_gain" name="rx_gain" placeholder="30.0" type="number" value=""/>
+                            </div>
+                            <div class="ui input fluid inline fields">
+                                <label class="ui label" for="subdev">Subdevice Spec
+                                </label>
+                                <input class="u-full-width" id="subdev" name="subdev" placeholder="Enter a subdev spec (i.e. A:A)..." type="text" value=""/>
+                            </div>
+                            <div class="ui input fluid inline fields">
+                                <label class="ui label" for="antenna">Antenna Name
+                                </label>
+                                <input class="u-full-width" id="antenna" name="antenna" placeholder="Enter the antenna name(i.e. TX/RX)..." type="text" value=""/>
+                            </div>
+                            <div class="ui input fluid inline fields">
+                                <label class="ui label" for="channels">Number of Channels</label>
+                                <select class="ui dropdown" id="channels" name="channels">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <div class="ui divider"></div>
+                            <button class="ui icon button labeled teal" onclick="addAppNodePair();">
+                                <i class="plus icon"></i>Add Application Node Pair</button>
                         </div>
-                        <button class="ui icon button labeled teal" onclick="addAppNodePair();">
-                            <i class="plus icon"></i>Add Application Node Pair</button>
                     </div>
                 </div>
                 <div class="ui right dividing rail">
@@ -261,6 +290,4 @@
     </body>
 </html></div></body><script>$(".message .close").on("click", function () {
     $(this).closest(".message").transition("fade");
-});</script>
-<script type="text/javascript" src="/app_logic.js"></script>
-</html>
+});</script><script src="/app_logic.js" type="text/javascript"></script></html>
