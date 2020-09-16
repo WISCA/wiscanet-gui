@@ -150,6 +150,7 @@
                                     <div class="ui list">
                                         <div class="item">Operating Mode: {{ app.op_mode }}</div>
                                         <div class="item">MAC Mode: {{ app.mac_mode }}</div>
+                                        <div class="item">Runtime: {{ app.lang }}</div>
                                         <div class="item">MATLAB Directory: {{ app.matlab_dir }}</div>
                                         <div class="item">MATLAB Function: {{ app.matlab_func }}</div>
                                         <div class="item">MATLAB Log Function: {{ app.matlab_log }}</div>
@@ -236,6 +237,13 @@
                             <label class="ui label" for="mac_mode">Choose a MAC Mode</label>
                             <select class="ui dropdown" id="mac_mode" name="mac_mode">
                                 <option value="UMAC">UMAC</option>
+                            </select>
+                        </div>
+                        <div class="ui input fluid inline fields">
+                            <label class="ui label" for="lang">Choose a Runtime</label>
+                            <select class="ui dropdown" id="lang" name="lang">
+                                <option value="python">Python</option>
+                                <option value="matlab">MATLAB</option>
                             </select>
                         </div>
                         <br/>
