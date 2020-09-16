@@ -4,6 +4,7 @@ table! {
         name -> Text,
         op_mode -> Text,
         mac_mode -> Text,
+        lang -> Text,
         matlab_dir -> Text,
         matlab_func -> Text,
         matlab_log -> Text,
@@ -24,4 +25,7 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(applications, edgenodes,);
+allow_tables_to_appear_in_same_query!(
+    applications,
+    edgenodes,
+);
