@@ -210,7 +210,7 @@ fn gen_configuration(gen_config_form: Json<Vec<ConfigPair>>, conn: DbConn) -> Fl
     // and node into yml file
 
     // Set up file writes
-    let iplist_path = Path::new("/home/jholtom/wdemo/run/usr/cfg/iplist");
+    let iplist_path = Path::new("/home/wisca/wdemo/run/usr/cfg/iplist");
     let mut file = match File::create(&iplist_path) {
         Err(why) => panic!("Couldn't create {}: {}", iplist_path.display(), why),
         Ok(file) => file,
@@ -220,7 +220,7 @@ fn gen_configuration(gen_config_form: Json<Vec<ConfigPair>>, conn: DbConn) -> Fl
     for conf_pair in node_app_map {
         let pair_ip = conf_pair.0.ipaddr;
         iplist_string.push_str(&format!("{}\n", pair_ip));
-        let mut usrconfig_string = "/home/jholtom/wdemo/run/usr/cfg/usrconfig_".to_string();
+        let mut usrconfig_string = "/home/wisca/wdemo/run/usr/cfg/usrconfig_".to_string();
         usrconfig_string.push_str(&format!("{}.yml", pair_ip));
         let usrconfig_path = Path::new(&usrconfig_string);
         let mut usrconfig_file = match File::create(&usrconfig_path) {
