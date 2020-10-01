@@ -1,7 +1,7 @@
 
 # WISCANET GUI
 
-This interface handles configuring nodes for program execution (handles XML and iplist)
+This interface handles configuring nodes for program execution (handles YAML and iplist)
 
 ## Models (Database)
 
