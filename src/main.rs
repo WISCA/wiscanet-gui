@@ -25,7 +25,8 @@ use rocket_contrib::{json::Json, serve::StaticFiles, templates::Template};
 
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::Path;
+
+use dirs::home_dir;
 
 use application::{App, Application};
 use edgenode::{Edgenode, Node};
@@ -208,9 +209,9 @@ fn gen_configuration(gen_config_form: Json<Vec<ConfigPair>>, conn: DbConn) -> Fl
     // Next we will generate the usrconfig_$ipaddr.yml files (also found in ~/wdemo/run/usr/cfg/)
     // Algorithm: foreach in node_app_map, write out configuration combined from the application
     // and node into yml file
-
+    let home_path = home_dir().unwrap(); 
     // Set up file writes
-    let iplist_path = Path::new("/home/wisca/wdemo/run/usr/cfg/iplist");
+    let iplist_path = home_path.join("wdemo/run/usr/cfg/iplist");
     let mut file = match File::create(&iplist_path) {
         Err(why) => panic!("Couldn't create {}: {}", iplist_path.display(), why),
         Ok(file) => file,
@@ -220,9 +221,9 @@ fn gen_configuration(gen_config_form: Json<Vec<ConfigPair>>, conn: DbConn) -> Fl
     for conf_pair in node_app_map {
         let pair_ip = conf_pair.0.ipaddr;
         iplist_string.push_str(&format!("{}\n", pair_ip));
-        let mut usrconfig_string = "/home/wisca/wdemo/run/usr/cfg/usrconfig_".to_string();
+        let mut usrconfig_string = "wdemo/run/usr/cfg/usrconfig_".to_string();
         usrconfig_string.push_str(&format!("{}.yml", pair_ip));
-        let usrconfig_path = Path::new(&usrconfig_string);
+        let usrconfig_path = home_path.join(&usrconfig_string);
         let mut usrconfig_file = match File::create(&usrconfig_path) {
             Err(why) => panic!("Couldn't create {}: {}", usrconfig_path.display(), why),
             Ok(file) => file,
