@@ -209,7 +209,7 @@ fn gen_configuration(gen_config_form: Json<Vec<ConfigPair>>, conn: DbConn) -> Fl
     // Next we will generate the usrconfig_$ipaddr.yml files (also found in ~/wdemo/run/usr/cfg/)
     // Algorithm: foreach in node_app_map, write out configuration combined from the application
     // and node into yml file
-    let home_path = home_dir().unwrap(); 
+    let home_path = home_dir().unwrap();
     // Set up file writes
     let iplist_path = home_path.join("wdemo/run/usr/cfg/iplist");
     let mut file = match File::create(&iplist_path) {
@@ -245,7 +245,7 @@ fn gen_configuration(gen_config_form: Json<Vec<ConfigPair>>, conn: DbConn) -> Fl
             rx_gain: conf_pair.4,
             bandwidth: conf_pair.1.bw,
             device_addr: conf_pair.0.radio_address,
-            channels: vec!["0", "0,1", "0,1,2", "0,1,2,3"]
+            channels: vec!["\"0\"", "\"0,1\"", "\"0,1,2\"", "\"0,1,2,3\""]
                 .get((conf_pair.7 - 1) as usize)
                 .unwrap()
                 .to_string(),
