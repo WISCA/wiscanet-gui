@@ -1,4 +1,3 @@
-
 # WISCANET GUI
 
 This interface handles configuring nodes for program execution (handles YAML and iplist)
@@ -33,3 +32,6 @@ Each one of these is plural, because there will be a list in the database
 - radio_type link to edge node being assigned to
 - channels
 - antennas
+
+# Legal
+Copyright 2020, WISCANET Contributors
