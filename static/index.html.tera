@@ -2,8 +2,8 @@
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
-        <title>WISCANET Management</title>
-        <meta content="WISCANET Management Tool" name="description"/>
+        <title>WISCANet Management</title>
+        <meta content="WISCANet Management Tool" name="description"/>
         <meta content="Jacob Holtom" name="author"/>
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
         <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" rel="stylesheet"/>
@@ -21,7 +21,7 @@
     </head>
     <body>
         <div class="ui main container">
-            <h1 class="ui header">WISCANET Management</h1>
+            <h1 class="ui header">WISCANet Management</h1>
             <div class="ui segment">
                 {% if msg %}
                     <div class="ui message transition">
@@ -67,7 +67,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <h3 class="ui header">Build your WISCANET Runtime Configuration by pairing Edgenodes and Applications</h3>
+                <h3 class="ui header">Build your WISCANet Runtime Configuration by pairing Edgenodes and Applications</h3>
                 <button class="ui icon button labeled teal" onclick="sendConfig()">
                     <i class="icon paper plane"></i>Write Config to Disk</button>
                 <div class="ui divider"></div>

@@ -1,6 +1,6 @@
-# WISCANET GUI
+# WISCANet GUI
 
-This interface handles configuring nodes for program execution (handles YAML and iplist)
+This interface handles configuring nodes for program execution (handles node YAML and iplist)
 
 ## Models (Database)
 
@@ -34,4 +34,4 @@ Each one of these is plural, because there will be a list in the database
 - antennas
 
 # Legal
-Copyright 2020, WISCANET Contributors
+Copyright 2020, WISCANet Contributors
